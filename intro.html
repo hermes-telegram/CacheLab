@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CacheLab × recall-cache</title>
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.0/Vazirmatn-font-face.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{--bg:#06060f;--bg2:#0c0c1d;--card:rgba(10,10,25,.7);--accent:#6c63ff;--a2:#00d26a;--a3:#ff6b6b;--a4:#ffc107;--a5:#00bcd4;--a6:#e040fb;--text:#eaeaf5;--text2:#8888aa}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Vazirmatn',sans-serif;background:var(--bg);color:var(--text);direction:rtl;overflow-x:hidden}
+#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
+.glow-blob{position:fixed;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(108,99,255,.12) 0%,transparent 70%);pointer-events:none;z-index:1;transform:translate(-50%,-50%);transition:left .15s ease,top .15s ease;filter:blur(40px)}
+.container{position:relative;z-index:2;max-width:1300px;margin:0 auto;padding:0 24px}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 20px 60px;position:relative}
+.hero-badges{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:36px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:600;backdrop-filter:blur(12px);animation:badgeFloat 4s ease-in-out infinite;font-family:'Segoe UI Emoji','Noto Color Emoji','Apple Color Emoji',sans-serif}
+.b-p{background:rgba(108,99,255,.12);border:1px solid rgba(108,99,255,.4);color:var(--accent)}
+.b-g{background:rgba(0,210,106,.12);border:1px solid rgba(0,210,106,.4);color:var(--a2)}
+.b-c{background:rgba(0,188,212,.12);border:1px solid rgba(0,188,212,.4);color:var(--a5)}
+.b-pi{background:rgba(224,64,251,.12);border:1px solid rgba(224,64,251,.4);color:var(--a6)}
+@keyframes badgeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.hero-title{font-size:72px;font-weight:900;line-height:1.1;margin-bottom:28px;background:linear-gradient(135deg,#fff 0%,#6c63ff 25%,#00d26a 50%,#00bcd4 75%,#e040fb 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:300% 300%;animation:gradFlow 6s ease infinite}
+@keyframes gradFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.hero-subtitle{font-size:21px;color:var(--text2);max-width:650px;margin:0 auto 44px;line-height:1.9}
+.hero-buttons{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.btn-glow,.btn-ghost{padding:16px 36px;border-radius:14px;font-family:inherit;font-size:16px;font-weight:700;border:none;cursor:pointer;transition:all .4s;position:relative;overflow:hidden;text-decoration:none;color:inherit;display:inline-flex;align-items:center;gap:8px}
+.btn-glow{background:linear-gradient(135deg,#6c63ff,#4a3fcf);color:white;box-shadow:0 8px 30px rgba(108,99,255,.4)}
+.btn-glow:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 16px 50px rgba(108,99,255,.5)}
+.btn-ghost{background:rgba(255,255,255,.04);color:var(--text);border:1px solid rgba(108,99,255,.3);backdrop-filter:blur(10px)}
+.btn-ghost:hover{background:rgba(108,99,255,.1);transform:translateY(-4px)}
+.scroll-down{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);animation:sdBounce 2s infinite}
+@keyframes sdBounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(10px)}}
+.mouse{width:26px;height:42px;border:2px solid var(--text2);border-radius:14px;display:flex;justify-content:center;padding-top:10px}
+.wheel{width:3px;height:10px;background:var(--accent);border-radius:3px;animation:wh 1.5s infinite}
+@keyframes wh{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(12px)}}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;padding:40px 0 80px}
+.stat-box{background:var(--card);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.05);border-radius:22px;padding:28px 20px;text-align:center;position:relative;overflow:hidden;transition:all .5s}
+.stat-box:hover{transform:translateY(-8px);border-color:rgba(108,99,255,.2);box-shadow:0 25px 60px rgba(108,99,255,.15)}
+.stat-icon{width:50px;height:50px;margin:0 auto 12px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}
+.stat-num{font-size:38px;font-weight:900;background:linear-gradient(135deg,var(--c,var(--accent)),#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:13px;color:var(--text2);margin-top:4px}
+.stat-bar{height:4px;background:rgba(255,255,255,.05);border-radius:2px;margin-top:12px;overflow:hidden}
+.stat-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--c,var(--accent)),transparent);border-radius:2px;animation:barFill 2s ease forwards}
+@keyframes barFill{to{width:var(--w)}}
+.section{padding:90px 0}
+.section-head{text-align:center;margin-bottom:56px}
+.section-head h2{font-size:42px;font-weight:800;margin-bottom:14px;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.section-head p{color:var(--text2);font-size:17px}
+.features-wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;perspective:1200px}
+.fcard{background:var(--card);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.04);border-radius:20px;padding:26px;position:relative;overflow:hidden;transition:all .5s cubic-bezier(.23,1,.32,1);transform-style:preserve-3d}
+.fcard:hover{transform:translateY(-10px) scale(1.02);border-color:rgba(108,99,255,.25);box-shadow:0 30px 80px rgba(108,99,255,.15)}
+.fcard .fc-num{position:absolute;top:14px;left:14px;font-size:11px;font-weight:800;color:rgba(108,99,255,.2);letter-spacing:2px}
+.fcard .fc-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;font-family:'Segoe UI Emoji','Noto Color Emoji','Apple Color Emoji',sans-serif}
+.fcard h3{font-size:15px;font-weight:700;margin-bottom:6px}
+.fcard p{font-size:12px;color:var(--text2);line-height:1.8}
+.arch-wrap{background:var(--card);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.05);border-radius:28px;padding:50px 30px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.arch-layer{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.arch-box{padding:14px 22px;border-radius:14px;font-size:13px;font-weight:600;min-width:100px;text-align:center;transition:all .4s}
+.arch-box:hover{transform:translateY(-6px) scale(1.05)}
+.arch-box.l1{background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.35);color:var(--accent)}
+.arch-box.l2{background:rgba(0,188,212,.08);border:1px solid rgba(0,188,212,.3);color:var(--a5)}
+.arch-box.l3{background:rgba(0,210,106,.08);border:1px solid rgba(0,210,106,.3);color:var(--a2)}
+.arch-box.l4{background:rgba(255,193,7,.08);border:1px solid rgba(255,193,7,.3);color:var(--a4)}
+.arch-box.l5{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.3);color:var(--a3)}
+.arch-arrow{font-size:22px;color:var(--text2);opacity:.4;animation:aBounce 2s infinite}
+@keyframes aBounce{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:.9;transform:translateY(6px)}}
+.arch-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:var(--text2)}
+.code-row{display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center}
+.code-win{background:rgba(0,0,0,.6);border:1px solid rgba(108,99,255,.2);border-radius:22px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.code-head{display:flex;align-items:center;gap:8px;padding:14px 18px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.05)}
+.dot{width:12px;height:12px;border-radius:50%}
+.dr{background:#ff5f56}.dy{background:#ffbd2e}.dg{background:#27c93f}
+.code-win pre{padding:22px;font-family:'Fira Code','Cascadia Code',monospace;font-size:13px;line-height:1.8;direction:ltr;text-align:left;color:#d4d4d4;max-height:400px;overflow-x:auto}
+.code-line{display:block;opacity:0;transform:translateX(-10px)}
+.code-line.show{animation:lineIn .5s ease forwards}
+@keyframes lineIn{to{opacity:1;transform:translateX(0)}}
+.kw{color:#c792ea}.st{color:#c3e88d}.fn{color:#82aaff}.dc{color:#ff5370}.cm{color:#546e7a;font-style:italic}.nm{color:#f78c6c}.bi{color:#ffcb6b}
+.steps{display:flex;flex-direction:column;gap:22px}
+.step{display:flex;gap:14px;align-items:flex-start;transition:transform .3s}
+.step:hover{transform:translateX(-8px)}
+.step-n{width:42px;height:42px;min-width:42px;border-radius:12px;background:rgba(108,99,255,.12);border:1px solid rgba(108,99,255,.3);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:var(--accent)}
+.step h4{font-size:15px;font-weight:700;margin-bottom:4px}
+.step p{font-size:13px;color:var(--text2);line-height:1.7}
+.patterns-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.pcard{background:var(--card);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.04);border-radius:16px;padding:18px;transition:all .4s}
+.pcard:hover{transform:translateY(-6px);border-color:rgba(108,99,255,.2);box-shadow:0 20px 50px rgba(108,99,255,.1)}
+.pcard .pc-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.pcard .pc-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;background:rgba(108,99,255,.1);color:var(--accent);font-family:'Segoe UI Emoji','Noto Color Emoji','Apple Color Emoji',sans-serif}
+.pcard h4{font-size:13px;font-weight:700}
+.pcard p{font-size:11px;color:var(--text2);line-height:1.7;margin-top:6px}
+.backend-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.bcard{background:var(--card);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.04);border-radius:22px;padding:28px;transition:all .5s;position:relative;overflow:hidden}
+.bcard:hover{transform:translateY(-8px) scale(1.02);border-color:rgba(108,99,255,.25);box-shadow:0 25px 60px rgba(108,99,255,.15)}
+.bcard .bc-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:14px;font-family:'Segoe UI Emoji','Noto Color Emoji','Apple Color Emoji',sans-serif}
+.bcard h3{font-size:17px;font-weight:700;margin-bottom:6px}
+.bcard p{font-size:13px;color:var(--text2);line-height:1.8}
+.bcard .bc-tag{display:inline-block;margin-top:10px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(108,99,255,.1);color:var(--accent)}
+.monitor-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.mcard{background:var(--card);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.05);border-radius:20px;padding:24px;position:relative;overflow:hidden}
+.mcard:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(108,99,255,.12)}
+.mcard h4{font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--a2);animation:lp 2s infinite}
+@keyframes lp{0%,100%{box-shadow:0 0 0 0 rgba(0,210,106,.4)}50%{box-shadow:0 0 0 8px rgba(0,210,106,0)}}
+.mval{font-size:30px;font-weight:900;margin:8px 0}
+.mval.pu{color:var(--accent)}.mval.gr{color:var(--a2)}.mval.cy{color:var(--a5)}.mval.ye{color:var(--a4)}
+.spark{display:flex;align-items:flex-end;gap:3px;height:44px;margin-top:10px}
+.spark i{flex:1;border-radius:2px 2px 0 0;transition:height .5s ease}
+.bench-wrap{background:var(--card);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.05);border-radius:24px;padding:32px}
+.bars{display:flex;align-items:flex-end;justify-content:center;gap:32px;height:260px;padding:20px 0}
+.bars .bar-col{display:flex;flex-direction:column;align-items:center;gap:8px}
+.bars .bar{width:46px;border-radius:10px 10px 0 0;transition:all .4s}
+.bars .bar:hover{filter:brightness(1.2);transform:scaleY(1.05);transform-origin:bottom}
+.bars .bar-val{font-size:13px;font-weight:800}
+.bars .bar-lbl{font-size:11px;color:var(--text2);text-align:center;max-width:70px}
+.compare-wrap{overflow-x:auto}
+.cmp{width:100%;border-collapse:collapse;background:var(--card);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.05);border-radius:20px;overflow:hidden}
+.cmp th,.cmp td{padding:16px 18px;text-align:center;border-bottom:1px solid rgba(255,255,255,.04)}
+.cmp th{font-size:13px;font-weight:600;color:var(--text2);background:rgba(0,0,0,.3)}
+.cmp td:first-child{text-align:right;font-weight:500;font-size:13px}
+.cmp tr:last-child td{border-bottom:none}
+.cmp tr:hover td{background:rgba(108,99,255,.03)}
+.rec{background:rgba(108,99,255,.05)}
+.ck{color:var(--a2);font-size:18px}
+.cx{color:var(--a3);font-size:18px}
+.cta-sec{padding:80px 0;text-align:center}
+.cta-box{background:linear-gradient(135deg,rgba(108,99,255,.08),rgba(0,210,106,.04));border:1px solid rgba(108,99,255,.25);border-radius:30px;padding:56px 36px;position:relative;overflow:hidden}
+.cta-box h2{font-size:36px;font-weight:800;margin-bottom:12px}
+.cta-box p{color:var(--text2);font-size:15px;margin-bottom:24px}
+.install-cmd{display:inline-block;background:rgba(0,0,0,.4);padding:14px 28px;border-radius:12px;font-family:'Fira Code',monospace;font-size:14px;direction:ltr;border:1px solid rgba(108,99,255,.3);color:var(--accent)}
+.foot{text-align:center;padding:36px 20px;border-top:1px solid rgba(255,255,255,.04);color:var(--text2);font-size:12px}
+.foot a{color:var(--accent);text-decoration:none}
+.foot a:hover{text-decoration:underline}
+.foot strong{color:var(--accent)}
+.reveal{opacity:0;transform:translateY(50px);transition:all .9s cubic-bezier(.23,1,.32,1)}
+.reveal.vis{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+@media(max-width:768px){
+.hero-title{font-size:40px}
+.section-head h2{font-size:28px}
+.code-row{grid-template-columns:1fr}
+.stats-row{grid-template-columns:repeat(2,1fr);gap:10px}
+.stat-num{font-size:28px}
+.bars{gap:14px}.bars .bar{width:34px}
+.arch-box{min-width:70px;font-size:11px;padding:10px 12px}
+}
+@media(max-width:480px){
+.hero-title{font-size:32px}
+.stats-row{grid-template-columns:1fr 1fr}
+.hero-buttons{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<div class="glow-blob" id="glowBlob"></div>
+
+<div class="container">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badges">
+    <span class="badge b-p">⚡ CacheLab v3.1.0</span>
+    <span class="badge b-g">🐍 recall-cache</span>
+    <span class="badge b-c">🚀 20 Advanced Patterns</span>
+    <span class="badge b-pi">🎨 Live Dashboard</span>
+  </div>
+  <h1 class="hero-title">CacheLab × recall-cache</h1>
+  <p class="hero-subtitle">
+    پلتفرم آزمایش، بهره‌وری و مانیتورینگ کش —<br>
+    کتابخانه‌ای برای کش‌ینگ هوشمند هر تابعی، ساده مثل <code>import requests</code>
+  </p>
+  <div class="hero-buttons">
+    <button class="btn-glow" onclick="scrollTo('features')"><i class="fas fa-cogs"></i> قابلیت‌ها</button>
+    <button class="btn-ghost" onclick="scrollTo('code')"><i class="fas fa-book"></i> شروع کار</button>
+  </div>
+  <div class="scroll-down"><div class="mouse"><div class="wheel"></div></div></div>
+</section>
+
+<!-- STATS -->
+<section class="section" id="stats">
+  <div class="stats-row">
+    <div class="stat-box reveal"><div class="stat-icon" style="--c:#6c63ff">🧩</div><div class="stat-num" data-count="20">0</div><div class="stat-label">الگوی پیشرفته</div><div class="stat-bar"><i style="--w:95%;--c:#6c63ff"></i></div></div>
+    <div class="stat-box reveal"><div class="stat-icon" style="--c:#00d26a"><i class="fas fa-server"></i></div><div class="stat-num" data-count="4">0</div><div class="stat-label">Backend مختلف</div><div class="stat-bar"><i style="--w:85%;--c:#00d26a"></i></div></div>
+    <div class="stat-box reveal"><div class="stat-icon" style="--c:#00bcd4">🔒</div><div class="stat-num" data-count="256">0</div><div class="stat-label">AES bit</div><div class="stat-bar"><i style="--w:100%;--c:#00bcd4"></i></div></div>
+    <div class="stat-box reveal"><div class="stat-icon" style="--c:#ffc107">📦</div><div class="stat-num" data-count="0">0</div><div class="stat-label">وابستگی اجباری</div><div class="stat-bar"><i style="--w:5%;--c:#ffc107"></i></div></div>
+    <div class="stat-box reveal"><div class="stat-icon" style="--c:#ff6b6b">⚡</div><div class="stat-num" data-count="17">0</div><div class="stat-label">پارامتر دکوریتور</div><div class="stat-bar"><i style="--w:75%;--c:#ff6b6b"></i></div></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-head reveal"><h2>🧬 قابلیت‌های کلیدی</h2><p>هر فایچر به‌صورت تعاملی قابل آزمایش و استفاده</p></div>
+  <div class="features-wall">
+    <div class="fcard reveal d1"><span class="fc-num">F01</span><div class="fc-icon" style="background:rgba(108,99,255,.15);color:#6c63ff">⚡</div><h3>Cache Decorator</h3><p>دکوریتور @cache با 17 پارامتر — TTL, compression, stampede, sliding و...</p></div>
+    <div class="fcard reveal d2"><span class="fc-num">F02</span><div class="fc-icon" style="background:rgba(0,210,106,.15);color:#00d26a">🧠</div><h3>Memory Backend</h3><p>LRU eviction, thread-safe, پیش‌فرض و سریع‌ترین بک‌اند</p></div>
+    <div class="fcard reveal d3"><span class="fc-num">F03</span><div class="fc-icon" style="background:rgba(255,193,7,.15);color:#ffc107">💿</div><h3>Disk Backend</h3><p>دائمی روی دیسک با رمزنگاری AES-256-GCM و cleanup پس‌زمینه</p></div>
+    <div class="fcard reveal d4"><span class="fc-num">F04</span><div class="fc-icon" style="background:rgba(0,188,212,.15);color:#00bcd4">☁️</div><h3>Redis Backend</h3><p>Connection pooling, retry, cluster mode, pipeline, SCAN</p></div>
+    <div class="fcard reveal d1"><span class="fc-num">F05</span><div class="fc-icon" style="background:rgba(255,107,107,.15);color:#ff6b6b">🏗</div><h3>Multi-Tier</h3><p>L1 → L2 fallback خودکار, TTL jitter, backfill خودکار</p></div>
+    <div class="fcard reveal d2"><span class="fc-num">F06</span><div class="fc-icon" style="background:rgba(108,99,255,.15);color:#6c63ff">🎯</div><h3>Stampede Protection</h3><p>Lock هوشمند — فقط یک thread محاسبه می‌کنه</p></div>
+    <div class="fcard reveal d3"><span class="fc-num">F07</span><div class="fc-icon" style="background:rgba(0,210,106,.15);color:#00d26a">🔄</div><h3>Background Refresh</h3><p>تازه‌سازی خودکار قبل از انقضا بدون downtime</p></div>
+    <div class="fcard reveal d4"><span class="fc-num">F08</span><div class="fc-icon" style="background:rgba(0,188,212,.15);color:#00bcd4">📊</div><h3>Cache Statistics</h3><p>hits, misses, hit_rate, reset, export — همه لحظه‌ای</p></div>
+    <div class="fcard reveal d1"><span class="fc-num">F09</span><div class="fc-icon" style="background:rgba(224,64,251,.15);color:#e040fb">🫠</div><h3>Sliding TTL</h3><p>TTL با هر access ریست می‌شه — عالی برای sessions</p></div>
+    <div class="fcard reveal d2"><span class="fc-num">F10</span><div class="fc-icon" style="background:rgba(255,193,7,.15);color:#ffc107">📦</div><h3>Compression</h3><p>zlib compression با 1-9 levels — صرفه‌وری تا 80%</p></div>
+    <div class="fcard reveal d3"><span class="fc-num">F11</span><div class="fc-icon" style="background:rgba(255,107,107,.15);color:#ff6b6b">🔗</div><h3>Request Coalescing</h3><p>چندین درخواست تکراری → یک fetch واحد</p></div>
+    <div class="fcard reveal d4"><span class="fc-num">F12</span><div class="fc-icon" style="background:rgba(108,99,255,.15);color:#6c63ff">💀</div><h3>Negative Cache</h3><p>کش کردن نتایج None — جلوگیری از query تکراری</p></div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="section" id="arch">
+  <div class="section-head reveal"><h2>🏛 معماری ۵ لایه</h2><p>ساختار recall-cache</p></div>
+  <div class="arch-wrap reveal">
+    <div class="arch-label">Application Layer</div>
+    <div class="arch-layer">
+      <div class="arch-box l1">Flask</div><div class="arch-box l1">Django</div><div class="arch-box l1">FastAPI</div><div class="arch-box l1">Async</div><div class="arch-box l1">Any Python</div>
+    </div>
+    <div class="arch-arrow">⬇</div>
+    <div class="arch-label">Pattern Layer (20)</div>
+    <div class="arch-layer">
+      <div class="arch-box l2">Stampede</div><div class="arch-box l2">Coalescing</div><div class="arch-box l2">Adaptive TTL</div><div class="arch-box l2">Graceful Deg.</div><div class="arch-box l2">Write-Behind</div>
+    </div>
+    <div class="arch-arrow">⬇</div>
+    <div class="arch-label">Core Layer</div>
+    <div class="arch-layer">
+      <div class="arch-box l3">@cache</div><div class="arch-box l3">CacheStats</div><div class="arch-box l3">Serializer</div><div class="arch-box l3">Key Builder</div><div class="arch-box l3">TTL Parser</div>
+    </div>
+    <div class="arch-arrow">⬇</div>
+    <div class="arch-label">Backend Layer</div>
+    <div class="arch-layer">
+      <div class="arch-box l4">Memory</div><div class="arch-box l4">Disk</div><div class="arch-box l4">Redis</div><div class="arch-box l4">Multi-Tier</div><div class="arch-box l4">Custom ABC</div>
+    </div>
+    <div class="arch-arrow">⬇</div>
+    <div class="arch-label">Storage</div>
+    <div class="arch-layer">
+      <div class="arch-box l5">RAM</div><div class="arch-box l5">SSD/HDD</div><div class="arch-box l5">Redis Server</div><div class="arch-box l5">TmpFS</div><div class="arch-box l5">Cloud</div>
+    </div>
+  </div>
+</section>
+
+<!-- CODE -->
+<section class="section" id="code">
+  <div class="section-head reveal"><h2>📖 شروع کار</h2><p>در چند خط</p></div>
+  <div class="code-row reveal">
+    <div class="code-win">
+      <div class="code-head"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span style="margin-right:12px;font-size:12px;color:var(--text2)">example.py</span></div>
+      <pre><span class="code-line"><span class="cm"># نصب</span></span>
+<span class="code-line">pip install recall-cache</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">from</span> recall <span class="kw">import</span> cache</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="dc">@cache</span>(ttl=<span class="st">"1h"</span>, maxsize=<span class="nm">1000</span>)</span>
+<span class="code-line"><span class="kw">def</span> <span class="fn">get_user</span>(user_id):</span>
+<span class="code-line">    <span class="kw">return</span> db.query(user_id)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="cm"># اولین فراخوانی: ~2 ثانیه</span></span>
+<span class="code-line">result = get_user(<span class="nm">42</span>)</span>
+<span class="code-line"><span class="cm"># فراخوانی بعدی: فوری! ⚡</span></span>
+<span class="code-line">result = get_user(<span class="nm">42</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="cm"># مدیریت کش</span></span>
+<span class="code-line">get_user.cache_clear()</span>
+<span class="code-line">get_user.cache_delete(<span class="nm">42</span>)</span>
+<span class="code-line">get_user.cache_set(<span class="st">"custom"</span>, <span class="nm">99</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="cm"># آمار و مانیتورینگ</span></span>
+<span class="code-line">stats = get_user.cache_stats</span>
+<span class="code-line"><span class="bi">print</span>(<span class="st">f"Hit rate: </span><span class="nm">{stats.hit_rate}</span><span class="st">"</span>)</span></pre>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-n">۱</div><div><h4>نصب</h4><p><code>pip install recall-cache</code><br>بدون وابستگی اجباری</p></div></div>
+      <div class="step"><div class="step-n">۲</div><div><h4>دکوریتور</h4><p>روی هر تابعی<br><code>@cache(ttl="1h")</code> بزنید</p></div></div>
+      <div class="step"><div class="step-n">۳</div><div><h4>Backend انتخاب</h4><p>Memory, Disk, Redis<br>یا Multi-Tier</p></div></div>
+      <div class="step"><div class="step-n">۴</div><div><h4>CacheLab</h4><p>تست، بنچمارک<br>و مانیتور لحظه‌ای</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PATTERNS -->
+<section class="section" id="patterns">
+  <div class="section-head reveal"><h2>🚀 ۲۰ الگوی پیشرفته</h2><p>همه به‌صورت تعاملی قابل آزمایش</p></div>
+  <div class="patterns-grid">
+    <div class="pcard reveal d1"><div class="pc-top"><div class="pc-icon">🔗</div><h4>Request Coalescing</h4></div><p>ترکیب درخواست‌های تکراری همزمان به یک fetch</p></div>
+    <div class="pcard reveal d2"><div class="pc-top"><div class="pc-icon">🎲</div><h4>Probabilistic Early Expiration</h4></div><p>انقضا احتمالی زودهنگام (روش فیسبوک)</p></div>
+    <div class="pcard reveal d3"><div class="pc-top"><div class="pc-icon">💀</div><h4>Negative Cache</h4></div><p>کش کردن None و خطاها برای جلوگیری از درخواست تکراری</p></div>
+    <div class="pcard reveal d4"><div class="pc-top"><div class="pc-icon">📚</div><h4>Cache Patterns</h4></div><p>Read-Through, Write-Through, Write-Behind</p></div>
+    <div class="pcard reveal d1"><div class="pc-top"><div class="pc-icon">🕸</div><h4>Dependency Invalidation</h4></div><p>ابطال زنجیره‌ای کلیدهای وابسته</p></div>
+    <div class="pcard reveal d2"><div class="pc-top"><div class="pc-icon">💳</div><h4>Transaction Integration</h4></div><p>commit/rollback روی عملیات کش</p></div>
+    <div class="pcard reveal d3"><div class="pc-top"><div class="pc-icon">📋</div><h4>Schema Versioning</h4></div><p>نسخه‌بندی کلید برای invalidation گروهی</p></div>
+    <div class="pcard reveal d4"><div class="pc-top"><div class="pc-icon">🌐</div><h4>HTTP Cache (ETag)</h4></div><p>کش HTTP با ETag و Cache-Control</p></div>
+    <div class="pcard reveal d1"><div class="pc-top"><div class="pc-icon">🎛</div><h4>Cache-Control</h4></div><p>max-age, stale-while-revalidate, must-revalidate</p></div>
+    <div class="pcard reveal d2"><div class="pc-top"><div class="pc-icon">📈</div><h4>Adaptive TTL</h4></div><p>تنظیم خودکار TTL بر اساس hit rate</p></div>
+    <div class="pcard reveal d3"><div class="pc-top"><div class="pc-icon">🔥</div><h4>Hot Key Detection</h4></div><p>شناسایی کلیدهای پرتکرار</p></div>
+    <div class="pcard reveal d4"><div class="pc-top"><div class="pc-icon">⚖️</div><h4>Large Key Detection</h4></div><p>شناسایی کلیدهای حجیم</p></div>
+    <div class="pcard reveal d1"><div class="pc-top"><div class="pc-icon">🗜</div><h4>Compression Monitoring</h4></div><p>ردیابی نرخ فشرده‌سازی</p></div>
+    <div class="pcard reveal d2"><div class="pc-top"><div class="pc-icon">🧩</div><h4>Memory Fragmentation</h4></div><p>ردیابی تکه‌تکه شدن حافظه</p></div>
+    <div class="pcard reveal d3"><div class="pc-top"><div class="pc-icon">🏚</div><h4>Stale Data Detection</h4></div><p>شناسایی داده‌های کهنه</p></div>
+    <div class="pcard reveal d4"><div class="pc-top"><div class="pc-icon">🌡</div><h4>Startup Warmer</h4></div><p>گرم کردن کش در زمان شروع</p></div>
+    <div class="pcard reveal d1"><div class="pc-top"><div class="pc-icon">🛡</div><h4>Graceful Degradation</h4></div><p>سرویس‌دهی با داده قدیمی هنگام خطا</p></div>
+    <div class="pcard reveal d2"><div class="pc-top"><div class="pc-icon">🆔</div><h4>Idempotency Key</h4></div><p>جلوگیری از تکرار عملیات (پرداخت)</p></div>
+    <div class="pcard reveal d3"><div class="pc-top"><div class="pc-icon">🔁</div><h4>Request Deduplication</h4></div><p>حذف درخواست‌های تکراری در بازه زمانی</p></div>
+    <div class="pcard reveal d4"><div class="pc-top"><div class="pc-icon">📊</div><h4>Cache Efficiency</h4></div><p>ردیابی hit rate در طول زمان</p></div>
+  </div>
+</section>
+
+<!-- BACKENDS -->
+<section class="section" id="backends">
+  <div class="section-head reveal"><h2>💾 ۴ بک‌اند</h2><p>هرکدوم برای یه کار خاص</p></div>
+  <div class="backend-cards">
+    <div class="bcard reveal d1"><div class="bc-icon" style="background:rgba(108,99,255,.15);color:#6c63ff">🧠</div><h3>Memory Backend</h3><p>LRU eviction, thread-safe, TTL, compression — برای کش درون‌‌حافظه‌ای با بالاترین سرعت. پیش‌فرض دکوریتور @cache. سرعت خواندن: ~250,000 ops/s</p><span class="bc-tag">پیش‌فرض · سریع‌ترین</span></div>
+    <div class="bcard reveal d2"><div class="bc-icon" style="background:rgba(255,193,7,.15);color:#ffc107">💿</div><h3>Disk Backend</h3><p>ذخیره روی فایل با AES-256-GCM encryption, background cleanup, size limit — برای کش بین restart ها. سرعت خواندن: ~45,000 ops/s</p><span class="bc-tag">دائمی · رمزنگاری</span></div>
+    <div class="bcard reveal d3"><div class="bc-icon" style="background:rgba(0,188,212,.15);color:#00bcd4">☁️</div><h3>Redis Backend</h3><p>Connection pooling, retry logic, pipeline, SCAN, cluster mode, key hash — برای سرورهای توزیع‌شده. سرعت خواندن: ~120,000 ops/s</p><span class="bc-tag">توزیعه · Cluster</span></div>
+    <div class="bcard reveal d4"><div class="bc-icon" style="background:rgba(255,107,107,.15);color:#ff6b6b">🏗</div><h3>Multi-Tier Backend</h3><p>L1 (Memory) + L2 (Disk/Redis) با fallback خودکار, TTL jitter, backfill خودکار — بهترین performance برای دیتای بزرگ. سرعت خواندن: L1 ~250K, L2 ~45K ops/s</p><span class="bc-tag">L1 → L2</span></div>
+  </div>
+</section>
+
+<!-- MONITOR -->
+<section class="section" id="monitor">
+  <div class="section-head reveal"><h2>📡 مانیتور زنده</h2><p>WebSocket لحظه‌ای</p></div>
+  <div class="monitor-wrap">
+    <div class="mcard reveal d1"><h4><span class="live-dot"></span> Memory Keys</h4><div class="mval pu" id="m1">0</div><div class="spark" id="spark1"></div></div>
+    <div class="mcard reveal d2"><h4><span class="live-dot"></span> Hit Rate</h4><div class="mval gr" id="m2">0%</div><div class="spark" id="spark2"></div></div>
+    <div class="mcard reveal d3"><h4><span class="live-dot"></span> Ops/sec</h4><div class="mval cy" id="m3">0</div><div class="spark" id="spark3"></div></div>
+    <div class="mcard reveal d4"><h4><span class="live-dot"></span> Uptime</h4><div class="mval ye" id="m4">0s</div><div class="spark" id="spark4"></div></div>
+  </div>
+</section>
+
+<!-- BENCHMARKS -->
+<section class="section" id="bench">
+  <div class="section-head reveal"><h2>📊 تخمین سرعت</h2><p>عملیات در ثانیه</p></div>
+  <div class="bench-wrap reveal">
+    <div class="bars">
+      <div class="bar-col"><div class="bar-val">~180K</div><div class="bar" style="height:200px;background:linear-gradient(180deg,#6c63ff,#6c63ff88)"></div><div class="bar-lbl">Memory<br>Read</div></div>
+      <div class="bar-col"><div class="bar-val">~140K</div><div class="bar" style="height:160px;background:linear-gradient(180deg,#00d26a,#00d26a88)"></div><div class="bar-lbl">Memory<br>Write</div></div>
+      <div class="bar-col"><div class="bar-val">~95K</div><div class="bar" style="height:110px;background:linear-gradient(180deg,#00bcd4,#00bcd488)"></div><div class="bar-lbl">Redis<br>Local</div></div>
+      <div class="bar-col"><div class="bar-val">~75K</div><div class="bar" style="height:85px;background:linear-gradient(180deg,#ffc107,#ffc10788)"></div><div class="bar-lbl">Memory+<br>Compress</div></div>
+      <div class="bar-col"><div class="bar-val">~38K</div><div class="bar" style="height:45px;background:linear-gradient(180deg,#ff6b6b,#ff6b6b88)"></div><div class="bar-lbl">Disk<br>SSD</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="section" id="compare">
+  <div class="section-head reveal"><h2>⚔️ مقایسه</h2></div>
+  <div class="compare-wrap reveal">
+    <table class="cmp">
+      <thead><tr><th>قابلیت</th><th>recall</th><th>lru_cache</th><th>cachetools</th><th>dogpile</th></tr></thead>
+      <tbody>
+        <tr><td>TTL</td><td class="rec"><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+        <tr><td>Disk Backend</td><td class="rec"><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="ck">✓</span></td></tr>
+        <tr><td>Redis Built-in</td><td class="rec"><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="ck">✓</span></td></tr>
+        <tr><td>Multi-Tier</td><td class="rec"><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td></tr>
+        <tr><td>Stampede Protection</td><td class="rec"><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td></tr>
+        <tr><td>Async Support</td><td class="rec"><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td></tr>
+        <tr><td>20 Advanced Patterns</td><td class="rec"><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td></tr>
+        <tr><td>Background Refresh</td><td class="rec"><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td></tr>
+        <tr><td>Compression</td><td class="rec"><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td></tr>
+        <tr><td>Custom Key Function</td><td class="rec"><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="ck">✓</span></td><td><span class="cx">✗</span></td></tr>
+        <tr><td>Namespacing / Prefix</td><td class="rec"><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td></tr>
+        <tr><td>Bulk Operations</td><td class="rec"><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="ck">✓</span></td><td><span class="cx">✗</span></td></tr>
+        <tr><td>Encryption (AES-256)</td><td class="rec"><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td></tr>
+        <tr><td>Thread-safe</td><td class="rec"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-sec"><div class="cta-box reveal"><h2>🚀 آماده‌ام!</h2><p>CacheLab را اجرا کنید</p><code class="install-cmd">pip install recall-cache</code></div></section>
+
+<!-- FOOTER -->
+<footer class="foot"><p>ساخته شده با ❤️ توسط <strong>sepehr H.I</strong> | ۲۰۲۶ · <a href="https://pypi.org/project/recall-cache/">PyPI</a> · <a href="https://github.com/hermes-telegram/recall">GitHub</a></p></footer>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

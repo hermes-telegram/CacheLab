@@ -1,0 +1,308 @@
+{% extends "layout.html" %}
+{% block title %}CacheLab — Advanced Patterns{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 20px; font-size: 24px; font-weight: 700;">
+    <i class="fas fa-rocket" style="color: var(--accent); margin-left: 10px;"></i>
+    21 الگوی پیشرفته
+</h2>
+<p style="color: var(--text-muted); margin-bottom: 24px;">
+    هر الگو تعاملی است و در واقع با کتابخانه recall واقعی اجرا می‌شود
+</p>
+
+<div class="grid grid-3">
+    {% for name, desc in features %}
+    <div class="feature-card" onclick="showFeature('{{ name }}')" id="card-{{ loop.index }}">
+        <div class="icon"><i class="fas fa-magic"></i></div>
+        <h3>{{ name }}</h3>
+        <p>{{ desc }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="card" id="feature-detail" style="display: none; margin-top: 24px;">
+    <div class="card-title" style="justify-content: space-between;">
+        <span id="detail-title"><i class="fas fa-info-circle"></i> Details</span>
+        <button class="btn btn-outline" style="padding: 4px 12px;" onclick="closeDetail()">✕</button>
+    </div>
+    <div id="detail-content"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const features = {
+    'Request Coalescing': {
+        desc: 'ترکیب درخواست‌های تکراری همزمان به یک درخواست واحد',
+        code: `from recall.advanced import RequestCoalescer
+
+coalescer = RequestCoalescer()
+
+@coalescer.coalesce(key_fn=lambda user_id: f"user:{user_id}")
+def fetch_user(user_id):
+    return db.query(user_id)`,
+        test: 'coalescer'
+    },
+    'Probabilistic Early Expiration': {
+        desc: 'انقضا احتمالی زودهنگام به سبک فیسبوک برای جلوگیری از ازدحام',
+        code: `from recall.advanced import ProbabilisticEarlyExpiration
+
+@ProbabilisticEarlyExpiration(beta=1.0)
+@cache(ttl="1h")
+def fetch_data(key):
+    return expensive_query(key)`,
+        test: 'pee'
+    },
+    'Negative Cache': {
+        desc: 'کش نتایج منفی (None) برای جلوگیری از کرر کوئری‌های موجود نبودن داده',
+        code: `from recall.advanced import NegativeCache
+
+@NegativeCache(ttl=300)
+def find_user(email):
+    return db.query(email)  # None is cached`,
+        test: 'negative'
+    },
+    'Cache Patterns': {
+        desc: 'الگوهای Read-Through, Write-Through, Write-Behind',
+        code: `from recall.advanced import CachePatterns
+
+patterns = CachePatterns(
+    read_through=db.query,
+    write_through=db.save,
+    write_behind=db.async_save
+)
+
+@patterns.cached(ttl="1h")
+def get_user(user_id):
+    return db.query(user_id)`,
+        test: 'patterns'
+    },
+    'Read-Through': {
+        desc: 'خواندن از طریق کش: لود از کش، fetch در miss',
+        code: `from recall.advanced import CachePatterns
+
+cp = CachePatterns(backend)
+result = cp.read_through("user:1", fetch_from_db, ttl=300)`,
+        test: 'read_through'
+    },
+    'Write-Through': {
+        desc: 'نوشتن از طریق کش: همزمان cache و DB آپدیت می‌شوند',
+        code: `from recall.advanced import CachePatterns
+
+cp = CachePatterns(backend)
+cp.write_through("key", "value", ttl=300)`,
+        test: 'write_through'
+    },
+    'Startup Warmer': {
+        desc: 'گرم کردن کش در شروع اپلیکیشن',
+        code: `from recall.advanced import StartupWarmer
+
+warmer = StartupWarmer()
+
+@warmer.warmup(keys=[(1,), (2,), (3,)], ttl=3600)
+def get_user(user_id):
+    return db.query(user_id)
+
+warmer.execute()`,
+        test: 'warmer'
+    },
+    'Graceful Degradation': {
+        desc: 'سرو کردن داده کهنه وقتی backend در دسترس نیست',
+        code: `from recall.advanced import GracefulDegradation
+
+g = GracefulDegradation(backend, stale_ttl=3600)
+
+@g.resilient(ttl=60)
+def get_data(key):
+    return fetch(key)`,
+        test: 'graceful'
+    },
+    'Adaptive TTL': {
+        desc: 'TTL تطبیقی بر اساس hit rate',
+        code: `from recall.advanced import AdaptiveTTL
+
+at = AdaptiveTTL(backend)
+
+@at.cached(target_hit_rate=0.8)
+def adapt_func(x):
+    return x * 3`,
+        test: 'adaptive'
+    },
+    'Cache-Control': {
+        desc: 'هدرهای HTTP Cache-Control',
+        code: `from recall.advanced import CacheControl
+
+cc = CacheControl(backend)
+
+@cc.cached(max_age=60, stale_while_revalidate=30)
+def cc_func(x):
+    return f"cc_{x}"`,
+        test: 'cache_control'
+    },
+    'Cache Efficiency': {
+        desc: 'ردیابی بهره‌وری کش',
+        code: `from recall.advanced import CacheEfficiencyTracker
+
+et = CacheEfficiencyTracker(backend)
+history = et.get_history()`,
+        test: 'efficiency'
+    },
+    'Dependency Invalidation': {
+        desc: 'ابطال وابستگی‌ها: وقتی یک مورد آپدیت شده همه وابسته‌ها  invalide می‌شوند',
+        code: `from recall.advanced import DependencyInvalidator
+
+di = DependencyInvalidator(backend)
+di.register("author:1", ["post:1", "post:2"])
+di.invalidate("author:1")`,
+        test: 'dependency'
+    },
+    'HTTP Cache (ETag)': {
+        desc: 'کش HTTP با ETag',
+        code: `from recall.advanced import HTTPCache
+
+hc = HTTPCache(backend)
+
+@hc.etag(ttl=60)
+def get_users():
+    return {"users": ["alice", "bob"]}`,
+        test: 'http_cache'
+    },
+    'Hot Key Detection': {
+        desc: 'تشخیص کلیدهای پر درخواست',
+        code: `from recall.advanced import HotKeyDetector
+
+hk = HotKeyDetector(backend, threshold=3)
+
+@hk.monitor
+@cache(ttl=60, backend=backend)
+def hot_func(x):
+    return x * 2`,
+        test: 'hot_keys'
+    },
+    'Idempotency Key': {
+        desc: 'پشتیبانی از Idempotency Key',
+        code: `from recall.advanced import IdempotencyKeySupport
+
+ik = IdempotencyKeySupport(backend)
+
+@ik.cache(ttl=60)
+def process_payment(order_id):
+    return f"processed_{order_id}"`,
+        test: 'idempotency'
+    },
+    'Large Key Detection': {
+        desc: 'تشخیص کلیدهای بزرگ‌تر از حد مجاز',
+        code: `from recall.advanced import LargeKeyDetector
+
+lk = LargeKeyDetector(backend, max_size_bytes=100)
+large = lk.get_large_keys()`,
+        test: 'large_keys'
+    },
+    'Request Deduplication': {
+        desc: 'حذف درخواست تکراری',
+        code: `from recall.advanced import RequestDeduplication
+
+rd = RequestDeduplication(backend)
+
+@rd.deduplicate
+def dedup_func(x):
+    return x * 2`,
+        test: 'dedup'
+    },
+    'Schema Versioning': {
+        desc: 'نسخه‌بندی ساختار کش',
+        code: `from recall.advanced import SchemaVersioning
+
+sv = SchemaVersioning(backend, version="1.0.0")
+
+@sv.cached(ttl=60)
+def get_data(x):
+    return f"data_v1_{x}"`,
+        test: 'schema_versioning'
+    },
+    'Stale Data Detection': {
+        desc: 'تشخیص داده کهنه‌تر از حد مجاز',
+        code: `from recall.advanced import StaleDataDetector
+
+sd = StaleDataDetector(backend, max_age_seconds=3600)
+stale = sd.find_stale_keys()`,
+        test: 'stale_detector'
+    },
+    'Transaction Integration': {
+        desc: 'یکپارچه تراکنش: فقط در صورت موفقیت تراکنش، cache آپدیت می‌شود',
+        code: `from recall.advanced import TransactionIntegration
+
+ti = TransactionIntegration(backend)
+
+with ti.transaction() as tx:
+    tx.set("key", value, ttl=60)
+    # commit or rollback`,
+        test: 'transaction'
+    },
+    'Memory Fragmentation': {
+        desc: 'ردیابی تکه‌تکه شدن حافظه',
+        code: `from recall.advanced import MemoryFragmentationTracker
+
+mf = MemoryFragmentationTracker(backend)
+mf.snapshot()
+frag = mf.get_fragmentation()`,
+        test: 'fragmentation'
+    },
+};
+
+function showFeature(name) {
+    const detail = document.getElementById('feature-detail');
+    const content = document.getElementById('detail-content');
+    const title = document.getElementById('detail-title');
+    
+    const f = features[name];
+    if (!f) {
+        title.innerHTML = '<i class="fas fa-magic"></i> ' + name;
+        content.innerHTML = '<p>Details coming soon.</p>';
+        detail.style.display = 'block';
+        return;
+    }
+    
+    title.innerHTML = '<i class="fas fa-magic"></i> ' + name;
+    content.innerHTML = `
+        <p style="line-height: 1.8; margin-bottom: 16px;">${f.desc}</p>
+        <pre style="background: rgba(0,0,0,0.4); padding: 16px; border-radius: 8px; direction: ltr; text-align: left; font-size: 13px; overflow-x: auto; margin-bottom: 12px;"><code>${f.code}</code></pre>
+        <button class="btn btn-primary" onclick="testAdvanced('${f.test}')">
+            <i class="fas fa-play"></i> Test
+        </button>
+        <div class="result-box" id="adv-result-${f.test}"></div>
+    `;
+    detail.style.display = 'block';
+    detail.scrollIntoView({ behavior: 'smooth' });
+}
+
+function closeDetail() {
+    document.getElementById('feature-detail').style.display = 'none';
+}
+
+async function testAdvanced(name) {
+    const box = document.getElementById('adv-result-' + name);
+    if (!box) return;
+    box.textContent = '⏳ Running...';
+    
+    try {
+        const res = await fetch('/api/test/advanced', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pattern: name }),
+        });
+        const data = await res.json();
+        box.textContent = JSON.stringify(data, null, 2);
+        
+        if (data.status === 'ok') {
+            showToast('Pattern test successful!', 'success');
+        } else {
+            showToast('Error: ' + (data.message || 'Unknown'), 'error');
+        }
+    } catch (e) {
+        box.textContent = 'Error: ' + e.message;
+        showToast('Connection error', 'error');
+    }
+}
+</script>
+{% endblock %}

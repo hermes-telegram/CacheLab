@@ -1,0 +1,238 @@
+{% extends "layout.html" %}
+{% block title %}CacheLab — داشبورد{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 20px; font-size: 24px; font-weight: 700;">
+    <i class="fas fa-tachometer-alt" style="color: var(--accent); margin-left: 10px;"></i>
+    داشبورد زنده
+    <span class="live-dot" style="display: inline-block; margin-right: 8px;"></span>
+</h2>
+
+<!-- Stats Row -->
+<div class="grid grid-4">
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 28px; font-weight: 700; color: var(--accent);" id="stat-memory">{{ stats.memory.size|default(0) }}</div>
+        <div style="font-size: 13px; color: var(--text-muted);">Memory Items</div>
+        <div class="stat-badge info" style="margin-top: 6px;">{{ stats.memory.maxsize|default(1000) }} max</div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 28px; font-weight: 700; color: var(--success);" id="stat-disk">{{ stats.disk.size|default(0) }}</div>
+        <div style="font-size: 13px; color: var(--text-muted);">Disk Items</div>
+        <div class="stat-badge success" style="margin-top: 6px;">Persistent</div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 28px; font-weight: 700; color: var(--warning);" id="stat-tests">{{ stats.total_tests }}</div>
+        <div style="font-size: 13px; color: var(--text-muted);">Tests Run</div>
+        <div class="stat-badge warning" style="margin-top: 6px;">Total</div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 28px; font-weight: 700; color: #ff9800;" id="stat-time">0s</div>
+        <div style="font-size: 13px; color: var(--text-muted);">Uptime</div>
+        <div class="stat-badge" style="margin-top: 6px;">Live</div>
+    </div>
+</div>
+
+<!-- Live Charts -->
+<div class="grid grid-2">
+    <div class="card">
+        <div class="card-title"><i class="fas fa-chart-pie"></i> Backend Health</div>
+        <canvas id="backendChart"></canvas>
+    </div>
+    <div class="card">
+        <div class="card-title"><i class="fas fa-chart-line"></i> Tests Over Time</div>
+        <canvas id="testsChart"></canvas>
+    </div>
+</div>
+
+<!-- Live Keys Monitor -->
+<div class="card">
+    <div class="card-title" style="justify-content: space-between;">
+        <span><i class="fas fa-key"></i> Active Keys</span>
+        <div class="stat-badge info">Memory Backend</div>
+    </div>
+    <div style="max-height: 300px; overflow-y: auto;">
+        <table class="table">
+            <thead>
+                <tr><th>#</th><th>Key</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="keysTable">
+                <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">در حال بارگذاری...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Control Panel -->
+<div class="grid grid-3">
+    <div class="card" style="text-align: center;">
+        <h4 style="margin-bottom: 12px;">مانیتورینگ</h4>
+        <button class="btn btn-success" onclick="toggleMonitor()" id="monitorBtn">
+            <i class="fas fa-play"></i> شروع
+        </button>
+    </div>
+    <div class="card" style="text-align: center;">
+        <h4 style="margin-bottom: 12px;">پاک کردن کش</h4>
+        <button class="btn btn-danger" onclick="clearCache()">
+            <i class="fas fa-trash"></i> Clear All
+        </button>
+    </div>
+    <div class="card" style="text-align: center;">
+        <h4 style="margin-bottom: 12px;">آمار Backend</h4>
+        <button class="btn btn-outline" onclick="fetchStats()">
+            <i class="fas fa-sync"></i> بروزرسانی
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let backendChart, testsChart;
+let monitorActive = false;
+const testsData = [];
+const labels = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    initCharts();
+    fetchStats();
+    setInterval(updateUptime, 1000);
+});
+
+function initCharts() {
+    // Backend health doughnut chart
+    const ctx1 = document.getElementById('backendChart').getContext('2d');
+    backendChart = new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+            labels: ['Memory', 'Disk'],
+            datasets: [{
+                data: [{{ stats.memory.size|default(0) }}, {{ stats.disk.size|default(0) }}],
+                backgroundColor: ['rgba(108, 99, 255, 0.8)', 'rgba(0, 210, 106, 0.8)'],
+                borderWidth: 0,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#e0e0e0' } } }
+        }
+    });
+
+    // Tests over time line chart
+    const ctx2 = document.getElementById('testsChart').getContext('2d');
+    testsChart = new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Tests',
+                data: [],
+                borderColor: '#6c63ff',
+                backgroundColor: 'rgba(108, 99, 255, 0.1)',
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#6c63ff',
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: { ticks: { color: '#9e9e9e' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: '#9e9e9e' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            },
+            plugins: { legend: { labels: { color: '#e0e0e0' } } }
+        }
+    });
+}
+
+async function fetchStats() {
+    const res = await fetch('/api/stats');
+    const data = await res.json();
+    
+    document.getElementById('stat-memory').textContent = data.memory.size || 0;
+    document.getElementById('stat-disk').textContent = data.disk.size || 0;
+    document.getElementById('stat-tests').textContent = data.total_tests;
+    
+    // Update chart
+    backendChart.data.datasets[0].data = [data.memory.size || 0, data.disk.size || 0];
+    backendChart.update();
+}
+
+async function fetchKeys() {
+    const res = await fetch('/api/keys?backend=memory');
+    const data = await res.json();
+    const tbody = document.getElementById('keysTable');
+    if (data.keys.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">No active keys</td></tr>';
+        return;
+    }
+    tbody.innerHTML = data.keys.slice(0, 20).map((k, i) => `
+        <tr>
+            <td>${i + 1}</td>
+            <td><code>${k.substring(0, 30)}${k.length > 30 ? '...' : ''}</code></td>
+            <td><button class="btn btn-outline" style="padding: 4px 12px;" onclick="deleteKey('${k}')">Delete</button></td>
+        </tr>
+    `).join('');
+}
+
+async function deleteKey(key) {
+    await fetch(`/api/key/${encodeURIComponent(key)}?backend=memory`, { method: 'DELETE' });
+    showToast('Key deleted', 'success');
+    fetchKeys();
+    fetchStats();
+}
+
+async function clearCache() {
+    await fetch('/api/cache/clear', { method: 'POST' });
+    showToast('All caches cleared!', 'success');
+    fetchStats();
+    fetchKeys();
+}
+
+function toggleMonitor() {
+    monitorActive = !monitorActive;
+    const btn = document.getElementById('monitorBtn');
+    if (monitorActive) {
+        socket.emit('start_monitor');
+        btn.innerHTML = '<i class="fas fa-stop"></i> توقف';
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-danger');
+    } else {
+        socket.emit('stop_monitor');
+        btn.innerHTML = '<i class="fas fa-play"></i> شروع';
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-success');
+    }
+}
+
+window.onLiveStats = (data) => {
+    document.getElementById('stat-memory').textContent = data.memory.size || 0;
+    document.getElementById('stat-disk').textContent = data.disk.size || 0;
+    document.getElementById('stat-tests').textContent = data.total_tests;
+    
+    backendChart.data.datasets[0].data = [data.memory.size || 0, data.disk.size || 0];
+    backendChart.update();
+};
+
+window.onMetric = (data) => {
+    const testCount = parseInt(document.getElementById('stat-tests').textContent) || 0;
+    document.getElementById('stat-tests').textContent = testCount + 1;
+    
+    testsChart.data.labels.push(new Date().toLocaleTimeString());
+    testsChart.data.datasets[0].data.push(testCount + 1);
+    if (testsChart.data.labels.length > 20) {
+        testsChart.data.labels.shift();
+        testsChart.data.datasets[0].data.shift();
+    }
+    testsChart.update();
+};
+
+let startTime = Date.now();
+function updateUptime() {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    document.getElementById('stat-time').textContent = elapsed + 's';
+}
+
+setInterval(fetchKeys, 3000);
+setInterval(fetchStats, 5000);
+</script>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends "layout.html" %}
+{% block title %}CacheLab — ادمین{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 20px; font-size: 24px; font-weight: 700;">
+    <i class="fas fa-user-shield" style="color: var(--accent); margin-left: 10px;"></i>
+    پنل ادمین
+</h2>
+
+<div class="grid grid-2">
+    <!-- RBAC Status -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-users"></i> RBAC Manager</div>
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">
+            مدیریت نقش‌ها و دسترسی‌ها
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                <span>Admin</span>
+                <span class="stat-badge success">Full Access</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                <span>Developer</span>
+                <span class="stat-badge info">Read + Write</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                <span>Viewer</span>
+                <span class="stat-badge warning">Read Only</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Info -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-info-circle"></i> اطلاعات سیستم</div>
+        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 14px;">
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted);">Python</span>
+                <span>3.11.15</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted);">Flask</span>
+                <span>3.0.0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted);">recall-cache</span>
+                <span>3.1.0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted);">WebSocket</span>
+                <span style="color: var(--success);">Active</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted);">Async Mode</span>
+                <span>threading</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Log -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-clipboard-list"></i> لاگ حسابرسی</div>
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 12px;">
+            فعالیت‌های ثبت شده در CacheLab
+        </p>
+        <div class="result-box" id="audit-log" style="max-height: 200px;">
+در حال بارگذاری...
+        </div>
+    </div>
+
+    <!-- Circuit Breaker -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-shield-alt"></i> Circuit Breaker</div>
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 12px;">
+            محافظت از سرویس‌های خارجی
+        </p>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <div class="live-dot" style="background: var(--success);"></div>
+            <span>Status: Closed (Normal)</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px;">
+            <div style="padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                <div style="color: var(--text-muted);">Failure Threshold</div>
+                <div style="font-weight: 600;">5</div>
+            </div>
+            <div style="padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                <div style="color: var(--text-muted);">Recovery Time</div>
+                <div style="font-weight: 600;">30s</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadAuditLog() {
+    const res = await fetch('/api/stats');
+    const data = await res.json();
+    document.getElementById('audit-log').textContent = JSON.stringify(data, null, 2);
+}
+
+loadAuditLog();
+setInterval(loadAuditLog, 10000);
+</script>
+{% endblock %}

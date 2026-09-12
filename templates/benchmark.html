@@ -1,0 +1,133 @@
+{% extends "layout.html" %}
+{% block title %}CacheLab — بنچمارک{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 20px; font-size: 24px; font-weight: 700;">
+    <i class="fas fa-chart-bar" style="color: var(--accent); margin-left: 10px;"></i>
+    بنچمارک کامل
+</h2>
+
+<!-- Controls -->
+<div class="card">
+    <div class="card-title"><i class="fas fa-sliders-h"></i> تنظیمات</div>
+    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <label style="font-size: 14px; color: var(--text-muted);">تعداد عملیات:</label>
+        <input type="number" class="input" id="bench-size" value="1000" min="100" max="50000" style="width: 120px;">
+        <button class="btn btn-primary" onclick="runBenchmark()">
+            <i class="fas fa-play"></i> اجرا
+        </button>
+        <button class="btn btn-outline" onclick="exportResults()">
+            <i class="fas fa-download"></i> خروجی JSON
+        </button>
+    </div>
+</div>
+
+<!-- Results -->
+<div id="benchmark-results">
+    {% if results %}
+    <div class="grid grid-2">
+        {% for r in results %}
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-server"></i> {{ r.backend }}
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px;">
+                <div>
+                    <div style="color: var(--text-muted); font-size: 12px;">Set Time</div>
+                    <div style="font-weight: 600;">{{ r.set_time }}s</div>
+                </div>
+                <div>
+                    <div style="color: var(--text-muted); font-size: 12px;">Get Time</div>
+                    <div style="font-weight: 600;">{{ r.get_time }}s</div>
+                </div>
+                <div>
+                    <div style="color: var(--text-muted); font-size: 12px;">Set ops/s</div>
+                    <div style="font-weight: 600; color: var(--success);">{{ r.set_ops_per_sec }}</div>
+                </div>
+                <div>
+                    <div style="color: var(--text-muted); font-size: 12px;">Get ops/s</div>
+                    <div style="font-weight: 600; color: var(--success);">{{ r.get_ops_per_sec }}</div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Chart -->
+    <div class="card" style="margin-top: 20px;">
+        <div class="card-title"><i class="fas fa-chart-bar"></i> مقایسه بصری</div>
+        <canvas id="benchChart" height="100"></canvas>
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 60px;">
+        <i class="fas fa-chart-bar" style="font-size: 48px; color: var(--text-muted); margin-bottom: 16px;"></i>
+        <p style="color: var(--text-muted);">هنوز بنچمارکی اجرا نشده. دکمه «اجرا» را بزنید.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+{% if results %}
+const benchData = {{ results|tojson }};
+initBenchChart();
+{% endif %}
+
+function initBenchChart() {
+    const ctx = document.getElementById('benchChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: benchData.map(b => b.backend),
+            datasets: [{
+                label: 'Set ops/s',
+                data: benchData.map(b => b.set_ops_per_sec || 0),
+                backgroundColor: 'rgba(108, 99, 255, 0.7)',
+                borderRadius: 6,
+            }, {
+                label: 'Get ops/s',
+                data: benchData.map(b => b.get_ops_per_sec || 0),
+                backgroundColor: 'rgba(0, 210, 106, 0.7)',
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: { ticks: { color: '#9e9e9e' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: '#9e9e9e' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            },
+            plugins: { legend: { labels: { color: '#e0e0e0' } } }
+        }
+    });
+}
+
+async function runBenchmark() {
+    const size = parseInt(document.getElementById('bench-size').value);
+    showToast('بنچمارک در حال اجرا...', 'info');
+    
+    const res = await fetch('/api/benchmark/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ size }),
+    });
+    const data = await res.json();
+    
+    if (data.status === 'ok') {
+        showToast('بنچمارک کامل شد!', 'success');
+        setTimeout(() => location.reload(), 1000);
+    }
+}
+
+function exportResults() {
+    const data = {{ results|tojson }};
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'cachelab-benchmark.json';
+    a.click();
+}
+</script>
+{% endblock %}

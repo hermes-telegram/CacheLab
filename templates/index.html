@@ -1,0 +1,282 @@
+{% extends "layout.html" %}
+{% block title %}CacheLab — پلتفرم آزمایش کش{% endblock %}
+
+{% block content %}
+<!-- ── Hero Section ── -->
+<section style="text-align: center; padding: 80px 20px 60px; position: relative;">
+    <!-- Decorative elements -->
+    <div style="position: absolute; top: 20%; right: 10%; width: 200px; height: 200px; background: rgba(108, 99, 255, 0.1); border-radius: 50%; filter: blur(60px);"></div>
+    <div style="position: absolute; bottom: 10%; left: 15%; width: 300px; height: 300px; background: rgba(0, 210, 106, 0.08); border-radius: 50%; filter: blur(80px);"></div>
+    
+    <div style="position: relative; z-index: 1;">
+        <div style="display: inline-flex; align-items: center; gap: 10px; padding: 8px 20px; background: rgba(108, 99, 255, 0.1); border: 1px solid rgba(108, 99, 255, 0.3); border-radius: 30px; font-size: 13px; color: var(--accent); margin-bottom: 24px;">
+            <i class="fas fa-bolt"></i>
+            <span>نسخه ۳.۱.۰ | ساخته شده با recall</span>
+        </div>
+        
+        <h1 style="font-size: 56px; font-weight: 800; line-height: 1.2; margin-bottom: 20px; background: linear-gradient(135deg, #fff 0%, #6c63ff 50%, #00d26a 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+            CacheLab
+        </h1>
+        <p style="font-size: 20px; color: var(--text-muted); max-width: 600px; margin: 0 auto 40px; line-height: 1.8;">
+            پلتفرم آزمایش، بهره‌وری و مانیتورینگ کش — ۲۱ الگوی پیشرفته را در عمل ببینید، مقایسه کنید و در لحظه مانیتور کنید.
+        </p>
+        
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+            <a href="/dashboard" class="btn btn-primary" style="padding: 14px 32px; font-size: 16px;">
+                <i class="fas fa-tachometer-alt"></i>
+                شروع داشبورد
+            </a>
+            <a href="#features" class="btn btn-outline" style="padding: 14px 32px; font-size: 16px;">
+                <i class="fas fa-star"></i>
+                قابلیت‌ها
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ── Stats Bar ── -->
+<section style="margin-bottom: 60px;">
+    <div class="grid grid-4">
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 32px; font-weight: 800; color: var(--accent);">21</div>
+            <div style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">الگوی پیشرفته</div>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 32px; font-weight: 800; color: var(--success);">4</div>
+            <div style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">Backend مختلف</div>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 32px; font-weight: 800; color: var(--warning);">0</div>
+            <div style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">وابستگی اجباری</div>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 32px; font-weight: 800; color: #ff9800;">∞</div>
+            <div style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">TTF قابل تنظیم</div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Features Grid ── -->
+<section id="features" style="margin-bottom: 60px;">
+    <h2 style="text-align: center; font-size: 28px; font-weight: 700; margin-bottom: 12px;">
+        <i class="fas fa-cubes" style="color: var(--accent); margin-left: 10px;"></i>
+        قابلیت‌های کلیدی
+    </h2>
+    <p style="text-align: center; color: var(--text-muted); margin-bottom: 40px;">
+        هر قابلیت به‌صورت تعاملی قابل آزمایش است
+    </p>
+    
+    <div class="grid grid-3">
+        <div class="feature-card" onclick="location.href='/core'">
+            <div class="icon"><i class="fas fa-bolt"></i></div>
+            <h3>عملیات Core</h3>
+            <h3 style="font-size: 13px; color: var(--text-muted);">Set/Get, TTL, LRU, Compression</h3>
+        </div>
+        <div class="feature-card" onclick="location.href='/advanced'">
+            <div class="icon"><i class="fas fa-layer-group"></i></div>
+            <h3>الگوهای پیشرفته</h3>
+            <h3 style="font-size: 13px; color: var(--text-muted);">21 الگوی ترکیبی</h3>
+        </div>
+        <div class="feature-card" onclick="location.href='/benchmark'">
+            <div class="icon"><i class="fas fa-tachometer-alt"></i></div>
+            <h3>بنچمارک زنده</h3>
+            <h3 style="font-size: 13px; color: var(--text-muted);">مقایسه سرعت بک‌ها</h3>
+        </div>
+        <div class="feature-card" onclick="location.href='/dashboard'">
+            <div class="icon"><i class="fas fa-desktop"></i></div>
+            <h3>مانیتور زنده</h3>
+            <h3 style="font-size: 13px; color: var(--text-muted);">WebSocket لحظه‌ای</h3>
+        </div>
+        <div class="feature-card" onclick="location.href='/admin'">
+            <div class="icon"><i class="fas fa-shield-alt"></i></div>
+            <h3>RBAC & امنیت</h3>
+            <h3 style="font-size: 13px; color: var(--text-muted);">مدیریت دسترسی</h3>
+        </div>
+        <div class="feature-card" onclick="location.href='/dashboard'">
+            <div class="icon"><i class="fas fa-chart-line"></i></div>
+            <h3>چارت تحلیلی</h3>
+            <h3 style="font-size: 13px; color: var(--text-muted);">Chart.js پیشرفته</h3>
+        </div>
+    </div>
+</section>
+
+<!-- ── Code Example ── -->
+<section style="margin-bottom: 60px;">
+    <div class="card">
+        <div class="card-title">
+            <i class="fas fa-code"></i>
+            شروع کار با recall
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start;">
+            <div>
+                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.8;">
+                    با یک دکوریتور ساده، نتایج توابع را با TTL، رفتار LRU و پشتیبانی از چندین Backend کش کنید.
+                </p>
+                <pre style="background: rgba(0,0,0,0.4); border-radius: 12px; padding: 20px; font-family: 'Courier New', monospace; font-size: 13px; direction: ltr; text-align: left; overflow-x: auto; border: 1px solid var(--glass-border);"><code><span style="color: #c792ea;">from</span> <span style="color: #82aaff;">recall</span> <span style="color: #c792ea;">import</span> <span style="color: #e2d145;">cache</span>
+
+<span style="color: #6c63ff;">@cache</span>(ttl=<span style="color: #c3e88d;">"1h"</span>, maxsize=<span style="color: #f78c6c;">1000</span>)
+<span style="color: #82aaff;">def</span> <span style="color: #ff5370;">get_user</span>(user_id):
+    <span style="color: #c792ea;">return</span> db.query(user_id)
+
+<span style="color: #546e7a;"># First call: 2 seconds</span>
+result = get_user(<span style="color: #f78c6c;">42</span>)
+<span style="color: #546e7a;"># Next call: instant ⚡</span>
+result = get_user(<span style="color: #f78c6c;">42</span>)</code></pre>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 12px; font-size: 15px;">پشتیبانی از:</h4>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px;">
+                    <li><i class="fas fa-check-circle" style="color: var(--success); margin-left: 8px;"></i> Memory Backend (پیش‌فرض)</li>
+                    <li><i class="fas fa-check-circle" style="color: var(--success); margin-left: 8px;"></i> Disk Backend + رمزنگاری AES-256</li>
+                    <li><i class="fas fa-check-circle" style="color: var(--success); margin-left: 8px;"></i> Redis با Connection Pooling</li>
+                    <li><i class="fas fa-check-circle" style="color: var(--success); margin-left: 8px;"></i> Multi-Tier (L1 → L2 fallback)</li>
+                    <li><i class="fas fa-check-circle" style="color: var(--success); margin-left: 8px;"></i> TTL شیء‌TTL شیء Like "1h", "30m"</li>
+                    <li><i class="fas fa-check-circle" style="color: var(--success); margin-left: 8px;"></i> LRU Eviction</li>
+                    <li><i class="fas fa-check-circle" style="color: var(--success); margin-left: 8px;"></i> Sliding TTL</li>
+                    <li><i class="fas fa-check-circle" style="color: var(--success); margin-left: 8px;"></i> Stampede Protection</li>
+                    <li><i class="fas fa-check-circle" style="color: var(--success); margin-left: 8px;"></i> Background Refresh</li>
+                    <li><i class="fas fa-check-circle" style="color: var(--success); margin-left: 8px;"></i> Compression (zlib)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Architecture ── -->
+<section style="margin-bottom: 60px;">
+    <h2 style="text-align: center; font-size: 28px; font-weight: 700; margin-bottom: 40px;">
+        <i class="fas fa-project-diagram" style="color: var(--accent); margin-left: 10px;"></i>
+        معماری چیست؟
+    </h2>
+    <div class="grid grid-2">
+        <div class="card">
+            <div class="card-title"><i class="fas fa-recycle"></i> دسته‌بندی قابلیت‌ها</div>
+            <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px; height: 36px; background: rgba(108, 99, 255, 0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--accent);">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">Core</div>
+                        <div style="color: var(--text-muted); font-size: 13px;">4 Backend + دکوریتور + CacheStats</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px; height: 36px; background: rgba(0, 210, 106, 0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--success);">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">Advanced</div>
+                        <div style="color: var(--text-muted); font-size: 13px;">20 الگوی پیشرفته</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px; height: 36px; background: rgba(255, 152, 0, 0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ff9800;">
+                        <i class="fas fa-plug"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">Plugins</div>
+                        <div style="color: var(--text-muted); font-size: 13px;">FastAPI, Django, Async Redis</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px; height: 36px; background: rgba(255, 82, 82, 0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--danger);">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">Resilience</div>
+                        <div style="color: var(--text-muted); font-size: 13px;">Circuit Breaker, Rate Limiter, Graceful Degradation</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px; height: 36px; background: rgba(255, 193, 7, 0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--warning);">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">Operations</div>
+                        <div style="color: var(--text-muted); font-size: 13px;">Backup, Migration, Key Rotation, Metrics</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i class="fas fa-tachometer-alt"></i> بنچمارک آشکار</div>
+            <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">
+                مقایسه سرعت در عملیات ۱۰۰۰ کلید
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+                        <span>Memory (بدون فشرده‌سازی)</span>
+                        <span style="color: var(--success);">~250,000 ops/s</span>
+                    </div>
+                    <div style="height: 8px; background: rgba(0,0,0,0.4); border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; width: 95%; background: linear-gradient(90deg, var(--success), #00ff88); border-radius: 4px;"></div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+                        <span>Memory + Compression</span>
+                        <span style="color: var(--warning);">~180,000 ops/s</span>
+                    </div>
+                    <div style="height: 8px; background: rgba(0,0,0,0.4); border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; width: 75%; background: linear-gradient(90deg, var(--warning), #ffca28); border-radius: 4px;"></div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+                        <span>Disk (persistent)</span>
+                        <span style="color: #ff9800;">~45,000 ops/s</span>
+                    </div>
+                    <div style="height: 8px; background: rgba(0,0,0,0.4); border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; width: 45%; background: linear-gradient(90deg, #ff9800, #ffb74d); border-radius: 4px;"></div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+                        <span>Redis (local)</span>
+                        <span style="color: var(--accent);">~120,000 ops/s</span>
+                    </div>
+                    <div style="height: 8px; background: rgba(0,0,0,0.4); border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; width: 60%; background: linear-gradient(90deg, var(--accent), #9c88ff); border-radius: 4px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── CTA ── -->
+<section style="text-align: center; padding: 40px 20px;">
+    <div class="card" style="background: linear-gradient(135deg, rgba(108, 99, 255, 0.1), rgba(0, 210, 106, 0.05)); border-color: rgba(108, 99, 255, 0.3);">
+        <h2 style="font-size: 24px; margin-bottom: 12px;">آماده‌ام!</h2>
+        <p style="color: var(--text-muted); margin-bottom: 24px;">
+            یکی از بخش‌های بالا را انتخاب کنید و اسکوپ آزمون را شروع کنید
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <a href="/dashboard" class="btn btn-primary" style="padding: 12px 28px;">
+                <i class="fas fa-tachometer-alt"></i> داشبورد
+            </a>
+            <a href="/core" class="btn btn-success" style="padding: 12px 28px;">
+                <i class="fas fa-database"></i> Core آزمون
+            </a>
+            <a href="/advanced" class="btn btn-outline" style="padding: 12px 28px;">
+                <i class="fas fa-rocket"></i> Advanced
+            </a>
+            <a href="/benchmark" class="btn btn-outline" style="padding: 12px 28px;">
+                <i class="fas fa-chart-bar"></i> بنچمارک
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer style="text-align: center; padding: 32px 20px; color: var(--text-muted); font-size: 13px;">
+    <p>
+        <i class="fas fa-heart" style="color: var(--danger); margin-left: 4px;"></i>
+        Built with ❤️ using recall-cache
+    </p>
+    <p style="margin-top: 4px;">© 2026 CacheLab | MIT License</p>
+</footer>
+
+{% endblock %}

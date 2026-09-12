@@ -1,0 +1,153 @@
+{% extends "layout.html" %}
+{% block title %}CacheLab — Core آزمون{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 20px; font-size: 24px; font-weight: 700;">
+    <i class="fas fa-database" style="color: var(--accent); margin-left: 10px;"></i>
+    آزمون Core Cache
+</h2>
+
+<!-- Test Cards -->
+<div class="grid grid-2">
+    <!-- Set/Get Test -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-plus-circle"></i> Set / Get</div>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+            <input type="text" class="input" id="sg-key" placeholder="Key" value="test_key">
+            <input type="text" class="input" id="sg-value" placeholder="Value" value="Hello CacheLab!">
+            <input type="number" class="input" id="sg-ttl" placeholder="TTL (seconds)" value="60">
+            <select class="input" id="sg-backend">
+                <option value="memory">Memory</option>
+                <option value="disk">Disk</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" onclick="runTest('set_get')">
+            <i class="fas fa-play"></i> اجرا
+        </button>
+        <div class="result-box" id="sg-result"></div>
+    </div>
+
+    <!-- TTL Expiration -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-clock"></i> TTL Expiration</div>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+            <input type="text" class="input" id="ttl-key" placeholder="Key" value="expire_test">
+            <input type="number" class="input" id="ttl-val" placeholder="TTL (seconds)" value="3" min="1" max="10">
+        </div>
+        <button class="btn btn-primary" onclick="runTest('ttl_expire')">
+            <i class="fas fa-hourglass-half"></i> شروع شمارش معکوس
+        </button>
+        <div class="result-box" id="ttl-result"></div>
+    </div>
+
+    <!-- LRU Eviction -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-level-down-alt"></i> LRU Eviction</div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            10 آیتم به بک‌اند با maxsize=5 اضافه می‌شود. فقط ۵ آیتم آخر باقی می‌مانند.
+        </p>
+        <button class="btn btn-success" onclick="runTest('lru_eviction')">
+            <i class="fas fa-compress-alt"></i> اجرا
+        </button>
+        <div class="result-box" id="lru-result"></div>
+    </div>
+
+    <!-- Compression -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-file-archive"></i> Compression</div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            ذخیره لیست ۱۰۰۰۰ عددی با و بدون فشرده‌سازی zlib
+        </p>
+        <button class="btn btn-warning" style="color: #000;" onclick="runTest('compression')">
+            <i class="fas fa-compress"></i> بررسی فشرده‌سازی
+        </button>
+        <div class="result-box" id="comp-result"></div>
+    </div>
+
+    <!-- Bulk Operations -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-layer-group"></i> Bulk Operations</div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            set_many و get_many برای ۱۰۰ کلید
+        </p>
+        <button class="btn btn-outline" onclick="runTest('bulk_ops')">
+            <i class="fas fa-tasks"></i> اجرا
+        </button>
+        <div class="result-box" id="bulk-result"></div>
+    </div>
+
+    <!-- Stampede Protection -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-shield-alt"></i> Stampede Protection</div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            ۵ درخواست همزمان برای یک کلید — فقط ۱ محاسبه واقعی
+        </p>
+        <button class="btn btn-danger" onclick="runTest('stampede')">
+            <i class="fas fa-bolt"></i> اجرا
+        </button>
+        <div class="result-box" id="stampede-result"></div>
+    </div>
+
+    <!-- Multi-Tier -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-sitemap"></i> Multi-Tier (L1 → L2)</div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            ابتدا L1 را پاک کنید، سازگاری L2 چک می‌شود
+        </p>
+        <button class="btn btn-primary" onclick="runTest('multi_tier')">
+            <i class="fas fa-exchange-alt"></i> اجرا
+        </button>
+        <div class="result-box" id="multi-result"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function runTest(name) {
+    const resultBox = document.getElementById(name === 'set_get' ? 'sg-result' :
+        name === 'ttl_expire' ? 'ttl-result' :
+        name === 'lru_eviction' ? 'lru-result' :
+        name === 'compression' ? 'comp-result' :
+        name === 'bulk_ops' ? 'bulk-result' :
+        name === 'stampede' ? 'stampede-result' :
+        'multi-result');
+    
+    resultBox.textContent = '⏳ در حال اجرا...';
+
+    let body = {};
+    if (name === 'set_get') {
+        body = {
+            key: document.getElementById('sg-key').value,
+            value: document.getElementById('sg-value').value,
+            ttl: parseInt(document.getElementById('sg-ttl').value),
+            backend: document.getElementById('sg-backend').value,
+        };
+    } else if (name === 'ttl_expire') {
+        body = {
+            key: document.getElementById('ttl-key').value,
+            ttl: parseInt(document.getElementById('ttl-val').value),
+        };
+    }
+
+    try {
+        const res = await fetch(`/api/test/${name}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        resultBox.textContent = JSON.stringify(data, null, 2);
+        
+        if (data.status === 'ok') {
+            showToast('تست موفق!', 'success');
+        } else {
+            showToast('خطا: ' + (data.message || 'نامشخص'), 'error');
+        }
+    } catch (e) {
+        resultBox.textContent = 'Error: ' + e.message;
+        showToast('خطا در ارتباط', 'error');
+    }
+}
+</script>
+{% endblock %}
