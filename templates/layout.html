@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="/static/i18n.js"></script>
     <style>
         :root {
             --bg-primary: #0f0f1a;
@@ -350,19 +351,22 @@
         CacheLab
     </a>
     <div class="navbar-links">
-        <a href="/dashboard" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
+        <button class="nav-link" id="langToggle" onclick="toggleLang()" style="cursor:pointer;border:none;">
+            <i class="fas fa-globe"></i><span>FA</span>
+        </button>
+        <a href="/dashboard" class="nav-link" data-i18n="nav_dashboard">
             <i class="fas fa-tachometer-alt"></i><span>داشبورد</span>
         </a>
-        <a href="/core" class="nav-link {% if active_page == 'core' %}active{% endif %}">
+        <a href="/core" class="nav-link" data-i18n="nav_core">
             <i class="fas fa-database"></i><span>Core</span>
         </a>
-        <a href="/advanced" class="nav-link {% if active_page == 'advanced' %}active{% endif %}">
+        <a href="/advanced" class="nav-link" data-i18n="nav_advanced">
             <i class="fas fa-rocket"></i><span>Advanced</span>
         </a>
-        <a href="/benchmark" class="nav-link {% if active_page == 'benchmark' %}active{% endif %}">
+        <a href="/benchmark" class="nav-link" data-i18n="nav_benchmark">
             <i class="fas fa-chart-bar"></i><span>بنچمارک</span>
         </a>
-        <a href="/admin" class="nav-link {% if active_page == 'admin' %}active{% endif %}">
+        <a href="/admin" class="nav-link" data-i18n="nav_admin">
             <i class="fas fa-user-shield"></i><span>ادمین</span>
         </a>
     </div>
@@ -397,6 +401,12 @@
             ...options,
         });
         return res.json();
+    }
+    
+    // ── Language Toggle ──
+    function toggleLang() {
+        const newLang = window.i18n.current === 'fa' ? 'en' : 'fa';
+        window.i18n.setLang(newLang);
     }
 
     // ── Live Socket ──

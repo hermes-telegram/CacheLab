@@ -6,6 +6,159 @@
 <title>CacheLab × recall-cache</title>
 <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.0/Vazirmatn-font-face.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script>
+    window.introLang = {
+        fa: {
+            hero_title: "کش هوشمند برای هر تابع",
+            hero_subtitle: "ساده و قدرتمند — با کتابخانه <strong>recall-cache</strong>",
+            hero_btn_demo: "دموی زنده",
+            hero_btn_docs: "مستندات",
+            badge_patterns: "۲۱ الگوی پیشرفته",
+            badge_backends: "۴ بک‌اند",
+            badge_realtime: "مانیتور زنده",
+            badge_open_source: "Open Source",
+            stat_patterns: "الگوی پیشرفته",
+            stat_backends: "بک‌اند",
+            stat_patterns_small: "الگو",
+            stat_performant: "High Performance",
+            feat_title: "قابلیت‌های کلیدی",
+            arch_title: "معماری CacheLab",
+            arch_l1: "لایه کاربرد",
+            arch_l2: "Cache Manager",
+            arch_l3: "Backend Router",
+            arch_l4: "ذخیره‌سازی",
+            arch_l5: "Monitoring",
+            code_title: "شروع کار",
+            code_step1: "نصب کتابخانه",
+            code_step2: "دکوریتور @cache",
+            code_step3: "اجرای برنامه",
+            pat_title: "الگوهای پیشرفته",
+            pat_coalescer: "Request Coalescer",
+            pat_coalescer_desc: "ترکیب درخواست‌های تکراری به یک",
+            pat_pee: "Probabilistic Early Expiration",
+            pat_pee_desc: "انقضا احتمالی زودهنگام به سبک فیسبوک",
+            pat_negative: "Negative Cache",
+            pat_negative_desc: "کش نتایج None",
+            pat_read: "Read-Through",
+            pat_read_desc: "لود از کش، fetch در miss",
+            pat_write: "Write-Through",
+            pat_write_desc: "نوشتن همزمان cache و DB",
+            pat_stampede: "Stampede Protection",
+            pat_stampede_desc: "جلوگیری از thundering herd",
+            pat_warmer: "Startup Warmer",
+            pat_warmer_desc: "گرم کردن کش در شروع اپلیکیشن",
+            pat_multi: "Multi-Tier",
+            pat_multi_desc: "چند لایه با L1/L2",
+            pat_graceful: "Graceful Degradation",
+            pat_graceful_desc: "سرو داده کهنه در خطا",
+            back_title: "بک‌اندها",
+            back_memory: "Memory Backend",
+            back_memory_desc: "سریع‌ترین — مناسب داده‌های کوچک",
+            back_disk: "Disk Backend",
+            back_disk_desc: "دائمی — بقا بعد از ریستارت",
+            back_redis: "Redis Backend",
+            back_redis_desc: "توزیع‌شده — چند سروره",
+            back_multi: "Multi-Tier",
+            back_multi_desc: "ترکیبی از چند لایه",
+            mon_title: "مانیتور زنده",
+            mon_stats: "آمار کش",
+            mon_keys: "کلیدها",
+            mon_health: "سلامت بک‌اند",
+            compare_title: "مقایسه",
+            cta_title: "آماده‌اید؟",
+            cta_btn: "اجرای CacheLab",
+            cta_cmd: "pip install recall-cache",
+            footer: "ساخته شده با ❤️ توسط <strong>sepehr H.I</strong> | ۲۰۲۶"
+        },
+        en: {
+            hero_title: "Smart Caching for Any Function",
+            hero_subtitle: "Simple & powerful — powered by <strong>recall-cache</strong>",
+            hero_btn_demo: "Live Demo",
+            hero_btn_docs: "Documentation",
+            badge_patterns: "21 Advanced Patterns",
+            badge_backends: "4 Backends",
+            badge_realtime: "Live Monitor",
+            badge_open_source: "Open Source",
+            stat_patterns: "Advanced Patterns",
+            stat_backends: "Backends",
+            stat_patterns_small: "Patterns",
+            stat_performant: "High Performance",
+            feat_title: "Key Features",
+            arch_title: "CacheLab Architecture",
+            arch_l1: "Application Layer",
+            arch_l2: "Cache Manager",
+            arch_l3: "Backend Router",
+            arch_l4: "Storage",
+            arch_l5: "Monitoring",
+            code_title: "Quick Start",
+            code_step1: "Install library",
+            code_step2: "@cache decorator",
+            code_step3: "Run your app",
+            pat_title: "Advanced Patterns",
+            pat_coalescer: "Request Coalescer",
+            pat_coalescer_desc: "Merge duplicate requests into one",
+            pat_pee: "Probabilistic Early Expiration",
+            pat_pee_desc: "Facebook-style early expiration",
+            pat_negative: "Negative Cache",
+            pat_negative_desc: "Cache None results",
+            pat_read: "Read-Through",
+            pat_read_desc: "Load from cache, fetch on miss",
+            pat_write: "Write-Through",
+            pat_write_desc: "Write to cache and DB simultaneously",
+            pat_stampede: "Stampede Protection",
+            pat_stampede_desc: "Prevent thundering herd",
+            pat_warmer: "Startup Warmer",
+            pat_warmer_desc: "Pre-populate cache at startup",
+            pat_multi: "Multi-Tier",
+            pat_multi_desc: "L1/L2 combined layers",
+            pat_graceful: "Graceful Degradation",
+            pat_graceful_desc: "Serve stale data on failure",
+            back_title: "Backends",
+            back_memory: "Memory Backend",
+            back_memory_desc: "Fastest — for small data",
+            back_disk: "Disk Backend",
+            back_disk_desc: "Persistent — survives restart",
+            back_redis: "Redis Backend",
+            back_redis_desc: "Distributed — multi-server",
+            back_multi: "Multi-Tier",
+            back_multi_desc: "Combined layers",
+            mon_title: "Live Monitor",
+            mon_stats: "Cache Stats",
+            mon_keys: "Keys",
+            mon_health: "Backend Health",
+            compare_title: "Comparison",
+            cta_title: "Ready?",
+            cta_btn: "Run CacheLab",
+            cta_cmd: "pip install recall-cache",
+            footer: "Made with ❤️ by <strong>sepehr H.I</strong> | 2026"
+        }
+    };
+        
+    function applyIntroLang(lang) {
+        const t = window.introLang[lang] || window.introLang['fa'];
+        document.querySelectorAll('[data-intro]').forEach(el => {
+            const key = el.getAttribute('data-intro');
+            if (t[key]) el.innerHTML = t[key];
+        });
+        document.documentElement.lang = lang === 'en' ? 'en' : 'fa';
+        document.documentElement.dir = lang === 'en' ? 'ltr' : 'rtl';
+        document.body.dir = lang === 'en' ? 'ltr' : 'rtl';
+        document.body.style.fontFamily = lang === 'en' ? "'Inter', 'Segoe UI', sans-serif" : "'Vazirmatn', sans-serif";
+        const btn = document.getElementById('introLangBtn');
+        if (btn) btn.innerHTML = lang === 'en' ? '<i class="fas fa-globe"></i> FA' : '<i class="fas fa-globe"></i> EN';
+    }
+        
+    function toggleIntroLang() {
+        const current = localStorage.getItem('intro_lang') || 'fa';
+        const next = current === 'fa' ? 'en' : 'fa';
+        localStorage.setItem('intro_lang', next);
+        applyIntroLang(next);
+    }
+        
+    // Auto-apply
+    const savedLang = localStorage.getItem('intro_lang') || 'fa';
+    if (savedLang !== 'fa') applyIntroLang(savedLang);
+</script>
 <style>
 :root{--bg:#06060f;--bg2:#0c0c1d;--card:rgba(10,10,25,.7);--accent:#6c63ff;--a2:#00d26a;--a3:#ff6b6b;--a4:#ffc107;--a5:#00bcd4;--a6:#e040fb;--text:#eaeaf5;--text2:#8888aa}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -163,11 +316,11 @@ body{font-family:'Vazirmatn',sans-serif;background:var(--bg);color:var(--text);d
   <div class="hero-badges">
     <span class="badge b-p">⚡ CacheLab v3.1.0</span>
     <span class="badge b-g">🐍 recall-cache</span>
-    <span class="badge b-c">🚀 20 Advanced Patterns</span>
-    <span class="badge b-pi">🎨 Live Dashboard</span>
-  </div>
-  <h1 class="hero-title">CacheLab × recall-cache</h1>
-  <p class="hero-subtitle">
+    <span class="badge b-c" data-intro="badge_patterns">🚀 20 Advanced Patterns</span>
+    <span class="badge b-pi" data-intro="badge_backends">🎨 Live Dashboard</span>
+    </div>
+    <h1 class="hero-title" data-intro="hero_title">CacheLab × recall-cache</h1>
+    <p class="hero-subtitle" data-intro="hero_subtitle">
     پلتفرم آزمایش، بهره‌وری و مانیتورینگ کش —<br>
     کتابخانه‌ای برای کش‌ینگ هوشمند هر تابعی، ساده مثل <code>import requests</code>
   </p>
