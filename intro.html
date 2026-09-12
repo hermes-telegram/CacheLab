@@ -6,6 +6,7 @@
 <title>CacheLab × recall-cache</title>
 <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.0/Vazirmatn-font-face.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="/static/i18n.js"></script>
 <script>
     window.introLang = {
         fa: {
@@ -306,6 +307,9 @@ body{font-family:'Vazirmatn',sans-serif;background:var(--bg);color:var(--text);d
 </style>
 </head>
 <body>
+<button onclick="toggleIntroLang()" id="introLangBtn" style="position:fixed;top:16px;left:16px;z-index:9998;padding:10px 18px;border-radius:30px;background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.4);color:var(--accent);font-size:14px;font-weight:700;cursor:pointer;backdrop-filter:blur(12px);font-family:inherit;transition:all .3s}">
+    <i class="fas fa-globe"></i> EN
+</button>
 <canvas id="bgCanvas"></canvas>
 <div class="glow-blob" id="glowBlob"></div>
 

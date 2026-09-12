@@ -144,6 +144,17 @@ def admin_page():
     <p>اگر منتقل نشدید <a href="http://localhost:8080?token=cachelab-admin-2026" style="color:#00d26a">اینجا</a> کلیک کنید</p>
     </div></body></html>'''
 
+@app.route('/intro')
+def intro_page():
+    """صفحه intro دو زبانه"""
+    from flask import send_from_directory
+    return send_from_directory('.', 'intro.html')
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    """سرو کردن فایل‌های استاتیک"""
+    from flask import send_from_directory
+    return send_from_directory('.', filename)
 
 # ═══════════════════════════════════════════════════════════
 # API Endpoints
